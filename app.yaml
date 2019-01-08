@@ -1,0 +1,15 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /
+  static_files: index.html
+  upload: index.html
+
+- url: /api
+  script: main.app
+
+- url: /controll.js
+  static_files: controll.js
+  upload: controll.js
