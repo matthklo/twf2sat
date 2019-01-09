@@ -28,8 +28,8 @@ def has_numeric_member(o, f):
 
 class ForwardingRecord(ndb.Model):
     tel = ndb.StringProperty()
-    start = ndb.StringProperty()
-    end = ndb.StringProperty()
+    start = ndb.IntegerProperty()
+    end = ndb.IntegerProperty()
     site = ndb.StringProperty()
     identify = ndb.StringProperty(indexed=False)
 
@@ -87,7 +87,7 @@ class MainPage(webapp2.RequestHandler):
             return
 
         # 3. Write to DB and return success.
-        new_record = ForwardingRecord(tel=post_data['tel'], start=post_data['start'], end=post_data['end'], site=post_data['site'], identify="")
+        new_record = ForwardingRecord(tel=post_data['tel'], start=int(post_data['start']), end=int(post_data['end']), site=post_data['site'], identify="")
         k = new_record.put()
         logging.info('key for new_record: ' + str(k))
         self.response.status = 200
