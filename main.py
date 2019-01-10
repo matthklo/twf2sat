@@ -46,6 +46,7 @@ class MainPage(webapp2.RequestHandler):
     
     def handle_register(self):
         post_data = self.request.POST
+        self.response.status = 200
         err_msg = None
 
         # Ex: UnicodeMultiDict([(u'tel', u'12123123'), (u'site', u'D047'), (u'start', u'1546963200'), (u'end', u'1546963200')])
@@ -77,14 +78,12 @@ class MainPage(webapp2.RequestHandler):
                 err_msg = '\\"end\\" should be within a month from \\"start\\".'
         
         if err_msg != None:
-            self.response.status = 400
             self.response.write('{"error":"%s"}' % err_msg)
             return
          
         # 2. Check how many on-going forecasting rules matched with the given tel. Return error if there is too many.
         ongoing_records = ForwardingRecord.query(ForwardingRecord.tel == post_data['tel']).fetch(3)
         if len(ongoing_records) >= 3:
-            self.response.status = 400
             self.response.write('{"error":"Too many on-going forwarding records for a tel number. (max: 3)"}')
             return
 
@@ -92,11 +91,11 @@ class MainPage(webapp2.RequestHandler):
         new_record = ForwardingRecord(tel=post_data['tel'], start=int(post_data['start']), end=int(post_data['end']), site=post_data['site'], identify="")
         k = new_record.put()
         logging.info('key for new_record: ' + str(k))
-        self.response.status = 200
         self.response.write('{}')
 
     def handle_cancel(self):
         post_data = self.request.POST
+        self.response.status = 200
         err_msg = None
 
         logging.info('cancel: ' + str(self.request.POST))
@@ -112,25 +111,24 @@ class MainPage(webapp2.RequestHandler):
                 err_msg = 'Invalid \\"cancel\\" data.'
         
         if err_msg != None:
-            self.response.status = 400
             self.response.write('{"error":"%s"}' % err_msg)
             return
         
         # no-op if the key does not exist
         key_to_delete.delete()
 
-        self.response.status = 200
         self.response.write('{"cancel":"%s"}' % post_data['cancel'])
     
     def handle_query(self):
         post_data = self.request.POST
+        self.response.status = 200
         err_msg = None
 
         logging.info('query: ' + str(self.request.POST))
         
         if False == has_numeric_member(post_data, 'query_tel'):
             cnt = len(ForwardingRecord.query().fetch(keys_only=True))
-            self.response.status = 200
+            
             self.response.write('{"count":%d}' % cnt)
             return
 
@@ -138,7 +136,6 @@ class MainPage(webapp2.RequestHandler):
             err_msg = 'Invalid \\"query\\" data.'
         
         if err_msg != None:
-            self.response.status = 400
             self.response.write('{"error":"%s"}' % err_msg)
             return
         
@@ -155,7 +152,6 @@ class MainPage(webapp2.RequestHandler):
             rd['key'] = r.key.urlsafe()
             results['records'].append(rd)
 
-        self.response.status = 200
         self.response.write(json.dumps(results))
 
 app = webapp2.WSGIApplication([
