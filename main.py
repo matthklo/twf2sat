@@ -1,7 +1,7 @@
 import webapp2
 import logging
 import json
-import time
+import datetime
 
 from google.appengine.ext import ndb
 
@@ -62,10 +62,12 @@ class MainPage(webapp2.RequestHandler):
         if (False == has_numeric_member(post_data, 'start')) or (False == has_numeric_member(post_data, 'end')):
             err_msg = 'Missing either \\"start\\" or \\"end\\" data.'
         if err_msg == None:
-            cur_epoch = int(time.time()) % 86400 * 86400
+            cur_date = datetime.datetime.now()
+            cur_epoch = int((datetime.datetime(cur_date.year, cur_date.month, cur_date.day) - datetime.datetime(1970,1,1)).total_seconds())
             start_epoch = int(post_data['start'])
             end_epoch = int(post_data['end'])
             if start_epoch < cur_epoch:
+                logging.info('cur_epoch=' + str(cur_epoch) + ', start_epoch=' + str(start_epoch))
                 err_msg = '\\"start\\" is in the past.'
             elif start_epoch > (cur_epoch + 31*86400):
                 err_msg = '\\"start\\" should be within a month from now.'

@@ -191,7 +191,7 @@ function resolve_site_name(site_id)
         var region = forecast_sites[ridx];
         for (var cidx in region)
         {
-            var city = r[cidx];
+            var city = region[cidx];
             for (var i=0; i<city.length; ++i)
             {
                 if (city[i].id == site_id)
@@ -395,19 +395,19 @@ function handle_query_tel_success(data, status, jqXHR)
         return;
     }
 
-    console.log("data=" + data);
+    console.log("count=" + data.count);
     console.log("status=" + status);
 
     // List all records.
     var inner_html = '<thead><tr><th scope="col">啟始時間</th><th scope="col">結束時間</th><th scope="col">山岳</th><th scope="col">動作</th></tr></thead>';
     var cells = '';
-    for (var i =0; i<data.length; ++i)
+    for (var i =0; i<data.records.length; ++i)
     {
-        var sd = new Date(data.start * 1000);
-        var ed = new Date(data.end * 1000);
+        var sd = new Date(data.records[i].start * 1000);
+        var ed = new Date(data.records[i].end * 1000);
         cells += ('<tr><td>' + sd.toLocaleDateString() + '</td><td>' + ed.toLocaleDateString() 
-            + '</td><td>' + resolve_site_name(data.site) 
-            + '</td><td><button type="button" class="btn btn-outline-danger" data-revoke="'+ data.key + '">取消</button></td></tr>');
+            + '</td><td>' + resolve_site_name(data.records[i].site) 
+            + '</td><td><button type="button" class="btn btn-outline-danger" data-revoke="'+ data.records[i].key + '">取消</button></td></tr>');
     }
     inner_html += ('<tbody>' + cells + '</tbody></table>');
     $('#query-result-table').removeClass('d-none').html(inner_html).on('click', 'button[data-revoke]', handle_revoke);
