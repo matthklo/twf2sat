@@ -27,75 +27,89 @@
                     </div>
                     
 					<div class="row">
-						<div class="offset-2 col-5-auto">
+						<div class="offset-0 col-12 offset-md-4 col-md-8">
 							<div class="alert alert-danger d-none mt-2" role="alert" id="tel-alert">
-								<i class="fa fa-exclamation-triangle pr-2"></i><small>號碼需為8位數字</small>
+								<i class="fa fa-exclamation-triangle pr-2"></i>號碼需為8位數字
 							</div>
 						</div>
                     </div>
 
                     <label for="inputGroupRegion" class="mt-1">預報地點</label>
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="region-prepend-text">地區</span>
+                    <div class="row">
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="region-prepend-text">地區</span>
+                                </div>
+                                <select class="custom-select" id="inputGroupRegion">
+                                    <option value="" selected>選擇...</option>
+                                    <option value="0">北部</option>
+                                    <option value="1">中部</option>
+                                    <option value="2">南部</option>
+                                    <option value="3">東部</option>
+                                </select>
+                            </div>
                         </div>
-                        <select class="custom-select" id="inputGroupRegion">
-                            <option value="" selected>選擇...</option>
-                            <option value="0">北部</option>
-                            <option value="1">中部</option>
-                            <option value="2">南部</option>
-                            <option value="3">東部</option>
-                        </select>
-                    </div>
 
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="city-prepend-text">城市</span>
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="city-prepend-text">城市</span>
+                                </div>
+                                <select class="custom-select" id="inputGroupCity">
+                                    <option value="" selected>選擇...</option>
+                                </select>
+                            </div>
                         </div>
-                        <select class="custom-select" id="inputGroupCity">
-                            <option value="" selected>選擇...</option>
-                        </select>
-                    </div>
 
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="mountain-prepend-text">山岳</span>
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="mountain-prepend-text">山岳</span>
+                                </div>
+                                <select class="custom-select" id="inputGroupMountain">
+                                    <option selected>選擇...</option>
+                                </select>
+                            </div>
                         </div>
-                        <select class="custom-select" id="inputGroupMountain">
-                            <option selected>選擇...</option>
-                        </select>
                     </div>
 
                     <div class="row">
-						<div class="offset-2 col-5-auto">
+                        <div class="offset-0 col-12 offset-md-4 col-md-8">
                             <div class="alert alert-info d-none mt-2" role="alert" id="forecast-alert">
                                 <i class="fa fa-file-alt pr-2"></i>點擊查看中央氣象局<a href="#" class="alert-link" id="forecast-link" target="_blank">預報網頁</a>
                             </div>
                         </div>
                     </div>
 
-                    <label for="datetimepicker-start" class="mt-1">預報發送啟始日期</label>
-                    <div class="input-group mb-1">
-                        <div class="input-group date" id="datetimepicker-start" data-target-input="nearest">
-                            <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-start"/>
-                            <div class="input-group-append" data-target="#datetimepicker-start" data-toggle="datetimepicker">
-                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <label for="datetimepicker-end">預報發送截止日期(啟始日後一個月為限)</label>
-                    <div class="input-group mb-3">
-                        <div class="input-group date" id="datetimepicker-end" data-target-input="nearest">
-                            <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-end"/>
-                            <div class="input-group-append" data-target="#datetimepicker-end" data-toggle="datetimepicker">
-                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="row">
-						<div class="offset-6 col-6 offset-lg-8 col-lg-4">
+                        <div class="col-12 col-md-6">
+                            <label for="datetimepicker-start" class="mt-1">啟始日期</label>
+                            <div class="input-group mb-1">
+                                <div class="input-group date" id="datetimepicker-start" data-target-input="nearest">
+                                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-start"/>
+                                    <div class="input-group-append" data-target="#datetimepicker-start" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                            <label for="datetimepicker-end" class="mt-1">截止日期</label>
+                            <div class="input-group mb-1">
+                                <div class="input-group date" id="datetimepicker-end" data-target-input="nearest">
+                                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-end"/>
+                                    <div class="input-group-append" data-target="#datetimepicker-end" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center">
+						<div class="col-6-auto mt-3">
                             <button disabled type="button" id="forecast-register-btn" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
                                 <div class="spinner-border spinner-border-sm d-none" id="register-spinner" role="status"></div>
                                 排程發送
