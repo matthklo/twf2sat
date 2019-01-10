@@ -62,7 +62,7 @@ class MainPage(webapp2.RequestHandler):
         if (False == has_numeric_member(post_data, 'start')) or (False == has_numeric_member(post_data, 'end')):
             err_msg = 'Missing either \\"start\\" or \\"end\\" data.'
         if err_msg == None:
-            cur_epoch = int(time.time())
+            cur_epoch = int(time.time()) % 86400 * 86400
             start_epoch = int(post_data['start'])
             end_epoch = int(post_data['end'])
             if start_epoch < cur_epoch:

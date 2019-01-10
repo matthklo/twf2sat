@@ -14,106 +14,152 @@
 <body>
     <div class="container-fluid">
         <div class="row justify-content-center">
-            <div class="col-12 col-md-8 col-xl-6">
-                
-                <!-- Form 內容 -->
-                <div class="form-group">
-                    <label for="inputGroupTel">預報發送目標</label>
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="tel-prepend-text">+88216</span>
-                        </div>
-                        <input type="text" maxlength="8" id="inputGroupTel" class="form-control" aria-describedby="tel-prepend-text" placeholder="(THURAYA 衛星電話號碼末8碼)">
+            <div class="col-12 col-md-8 col-xl-7">
+
+                <nav>
+                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        <a class="nav-item nav-link active" id="nav-register-tab" data-toggle="tab" href="#nav-register" role="tab">註冊</a>
+                        <a class="nav-item nav-link" id="nav-query-tab" data-toggle="tab" href="#nav-query" role="tab">查詢&amp;取消</a>
                     </div>
+                </nav>
+
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="nav-register" role="tabpanel">
                     
-					<div class="row">
-						<div class="offset-0 col-12 offset-md-4 col-md-8">
-							<div class="alert alert-danger d-none mt-2" role="alert" id="tel-alert">
-								<i class="fa fa-exclamation-triangle pr-2"></i>號碼需為8位數字
-							</div>
-						</div>
-                    </div>
-
-                    <label for="inputGroupRegion" class="mt-1">預報地點</label>
-                    <div class="row">
-                        <div class="col-12 col-md-6 col-lg-4">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" id="region-prepend-text">地區</span>
-                                </div>
-                                <select class="custom-select" id="inputGroupRegion">
-                                    <option value="" selected>選擇...</option>
-                                    <option value="0">北部</option>
-                                    <option value="1">中部</option>
-                                    <option value="2">南部</option>
-                                    <option value="3">東部</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-6 col-lg-4">
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text" id="city-prepend-text">城市</span>
-                                </div>
-                                <select class="custom-select" id="inputGroupCity">
-                                    <option value="" selected>選擇...</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-6 col-lg-4">
+                        <!-- Form 內容 -->
+                        <div class="form-group">
+                            <label for="inputGroupTel" class="mt-3">預報發送目標</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
-                                    <span class="input-group-text" id="mountain-prepend-text">山岳</span>
+                                    <span class="input-group-text" id="tel-prepend-text">+88216</span>
                                 </div>
-                                <select class="custom-select" id="inputGroupMountain">
-                                    <option selected>選擇...</option>
-                                </select>
+                                <input type="text" maxlength="8" id="inputGroupTel" class="form-control" aria-describedby="tel-prepend-text" placeholder="(THURAYA 衛星電話號碼末8碼)">
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="offset-0 col-12 offset-md-4 col-md-8">
-                            <div class="alert alert-info d-none mt-2" role="alert" id="forecast-alert">
-                                <i class="fa fa-file-alt pr-2"></i>點擊查看中央氣象局<a href="#" class="alert-link" id="forecast-link" target="_blank">預報網頁</a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <label for="datetimepicker-start" class="mt-1">啟始日期</label>
-                            <div class="input-group mb-1">
-                                <div class="input-group date" id="datetimepicker-start" data-target-input="nearest">
-                                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-start"/>
-                                    <div class="input-group-append" data-target="#datetimepicker-start" data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            
+                            <div class="row">
+                                <div class="offset-0 col-12 offset-md-4 col-md-8">
+                                    <div class="alert alert-danger d-none mt-2" role="alert" id="tel-alert">
+                                        <i class="fa fa-exclamation-triangle pr-2"></i>號碼需為8位數字
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="col-12 col-md-6">
-                            <label for="datetimepicker-end" class="mt-1">截止日期</label>
-                            <div class="input-group mb-1">
-                                <div class="input-group date" id="datetimepicker-end" data-target-input="nearest">
-                                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-end"/>
-                                    <div class="input-group-append" data-target="#datetimepicker-end" data-toggle="datetimepicker">
-                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+        
+                            <label for="inputGroupRegion" class="mt-1">預報地點</label>
+                            <div class="row">
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="region-prepend-text">地區</span>
+                                        </div>
+                                        <select class="custom-select" id="inputGroupRegion">
+                                            <option value="" selected>選擇...</option>
+                                            <option value="0">北部</option>
+                                            <option value="1">中部</option>
+                                            <option value="2">南部</option>
+                                            <option value="3">東部</option>
+                                        </select>
                                     </div>
+                                </div>
+        
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <div class="input-group mb-3">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="city-prepend-text">城市</span>
+                                        </div>
+                                        <select class="custom-select" id="inputGroupCity">
+                                            <option value="" selected>選擇...</option>
+                                        </select>
+                                    </div>
+                                </div>
+        
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" id="mountain-prepend-text">山岳</span>
+                                        </div>
+                                        <select class="custom-select" id="inputGroupMountain">
+                                            <option selected>選擇...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+        
+                            <div class="row">
+                                <div class="offset-0 col-12 offset-md-4 col-md-8">
+                                    <div class="alert alert-info d-none mt-2" role="alert" id="forecast-alert">
+                                        <i class="fa fa-file-alt pr-2"></i>點擊查看中央氣象局<a href="#" class="alert-link" id="forecast-link" target="_blank">預報網頁</a>
+                                    </div>
+                                </div>
+                            </div>
+        
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <label for="datetimepicker-start" class="mt-1">啟始日期</label>
+                                    <div class="input-group mb-1">
+                                        <div class="input-group date" id="datetimepicker-start" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-start"/>
+                                            <div class="input-group-append" data-target="#datetimepicker-start" data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+        
+                                <div class="col-12 col-md-6">
+                                    <label for="datetimepicker-end" class="mt-1">截止日期</label>
+                                    <div class="input-group mb-1">
+                                        <div class="input-group date" id="datetimepicker-end" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker-end"/>
+                                            <div class="input-group-append" data-target="#datetimepicker-end" data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+        
+                            <div class="row justify-content-center">
+                                <div class="col-6-auto mt-3">
+                                    <button disabled type="button" id="forecast-register-btn" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+                                        <div class="spinner-border spinner-border-sm d-none" id="register-spinner" role="status"></div>
+                                        排程發送
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row justify-content-center">
-						<div class="col-6-auto mt-3">
-                            <button disabled type="button" id="forecast-register-btn" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
-                                <div class="spinner-border spinner-border-sm d-none" id="register-spinner" role="status"></div>
-                                排程發送
-                            </button>
+                    <div class="tab-pane fade" id="nav-query" role="tabpanel">
+                        <!-- Form 內容 -->
+                        <div class="form-group">
+                            <label for="inputGroupTelQuery" class="mt-3">查詢號碼</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text" id="tel-prepend-text2">+88216</span>
+                                </div>
+                                <input type="text" maxlength="8" id="inputGroupTelQuery" class="form-control" aria-describedby="tel-prepend-text2" placeholder="(THURAYA 衛星電話號碼末8碼)">
+                            </div>
+                            
+                            <div class="row">
+                                <div class="offset-0 col-12 offset-md-4 col-md-8">
+                                    <div class="alert alert-danger d-none mt-2" role="alert" id="tel-alert-query">
+                                        <i class="fa fa-exclamation-triangle pr-2"></i>號碼需為8位數字
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row justify-content-center">
+                                <div class="col-6-auto mt-3">
+                                    <button disabled type="button" id="forecast-query-btn" class="btn btn-primary" data-toggle="button" aria-pressed="false" autocomplete="off">
+                                        <div class="spinner-border spinner-border-sm d-none" id="query-spinner" role="status"></div>
+                                        查詢
+                                    </button>
+                                </div>
+                            </div>
+
+                            <table class="table mt-3 d-none" id="query-result-table">
+                                <!-- content generated programmically -->
+                            </table>
                         </div>
                     </div>
                 </div>

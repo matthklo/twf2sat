@@ -184,6 +184,24 @@ forecast_sites = {
     }
 }
 
+function resolve_site_name(site_id)
+{
+    for (var ridx in forecast_sites)
+    {
+        var region = forecast_sites[ridx];
+        for (var cidx in region)
+        {
+            var city = r[cidx];
+            for (var i=0; i<city.length; ++i)
+            {
+                if (city[i].id == site_id)
+                    return city[i].site;
+            }
+        }
+    }
+    return "";
+}
+
 function datetimepicker_start_date_changed(evt)
 {
     // Note: evt.date: current picked dated. evt.oldDate: old date.
@@ -246,6 +264,11 @@ function handle_tel_change(evt)
     validate();
 }
 
+function handle_tel_query_change(evt)
+{
+    validate();
+}
+
 function validate()
 {
     var tel_valid = false;
@@ -259,6 +282,19 @@ function validate()
     else
     {
         $('#tel-alert').removeClass('d-none');
+    }
+
+    var tel_query_valid = false;
+    var enterred_query_tel = $('#inputGroupTelQuery').get(0).value;
+    if (enterred_query_tel == "" || ($.isNumeric(enterred_query_tel) && enterred_query_tel.length == 8))
+    {
+        $('#tel-alert-query').addClass('d-none');
+        if (enterred_query_tel != "")
+            tel_query_valid = true;
+    }
+    else
+    {
+        $('#tel-alert-query').removeClass('d-none');
     }
 
     var regionChoosed = false;
@@ -311,7 +347,7 @@ function validate()
     var default_starting_ms = new Date(cur_date.getFullYear(), cur_date.getMonth(), cur_date.getDate(), 0, 0, 0, 0).getTime();
     var start_ms = $('#datetimepicker-start').datetimepicker('date').toDate().getTime();
     var end_ms = $('#datetimepicker-end').datetimepicker('date').toDate().getTime();
-    if ((start_ms > default_starting_ms) && (end_ms >= start_ms)
+    if ((start_ms >= default_starting_ms) && (end_ms >= start_ms)
         && (start_ms - default_starting_ms < 31*86400000) 
         && (end_ms - start_ms < 31*86400000))
     {
@@ -326,11 +362,21 @@ function validate()
     {
         $('#forecast-register-btn').prop('disabled', true);
     }
+
+    $('#forecast-query-btn').prop('disabled', (tel_query_valid == false));
 }
 
 function handle_register_success(data, status, jqXHR)
 {
-    show_result_modal('成功', '已排程成功');
+    if (data.hasOwnProperty('error'))
+    {
+        show_result_modal('錯誤', '錯誤訊息: ' + data.error);
+    }
+    else
+    {
+        show_result_modal('成功', '已排程成功');
+    }
+
     console.log("data=" + data);
     console.log("status=" + status);
 
@@ -340,12 +386,42 @@ function handle_register_success(data, status, jqXHR)
 
 function handle_query_tel_success(data, status, jqXHR)
 {
+    $('#forecast-query-btn').prop('disabled', false);
+    $('#query-spinner').addClass('d-none');
 
+    if (data.hasOwnProperty('error'))
+    {
+        show_result_modal('查詢失敗', '錯誤訊息: ' + data.error);
+        return;
+    }
+
+    console.log("data=" + data);
+    console.log("status=" + status);
+
+    // List all records.
+    var inner_html = '<thead><tr><th scope="col">啟始時間</th><th scope="col">結束時間</th><th scope="col">山岳</th><th scope="col">動作</th></tr></thead>';
+    var cells = '';
+    for (var i =0; i<data.length; ++i)
+    {
+        var sd = new Date(data.start * 1000);
+        var ed = new Date(data.end * 1000);
+        cells += ('<tr><td>' + sd.toLocaleDateString() + '</td><td>' + ed.toLocaleDateString() 
+            + '</td><td>' + resolve_site_name(data.site) 
+            + '</td><td><button type="button" class="btn btn-outline-danger" data-revoke="'+ data.key + '">取消</button></td></tr>');
+    }
+    inner_html += ('<tbody>' + cells + '</tbody></table>');
+    $('#query-result-table').removeClass('d-none').html(inner_html).on('click', 'button[data-revoke]', handle_revoke);
 }
 
 function handle_query_count_success(data, status, jqXHR)
 {
 
+}
+
+function handle_revoke(evt)
+{
+    var rkey = $(evt.target).data('revoke');
+    console.log("Revoke key = " + rkey);
 }
 
 function show_result_modal(title, message)
@@ -368,28 +444,24 @@ function do_register()
     $('#forecast-register-btn').prop('disabled', true);
     $('#register-spinner').removeClass('d-none');
 
-    var data = $.param(payload);
-    //console.log('do_register() data= ' + data);
-
-    $.post("./api", data, handle_register_success, "json")
+    $.post("./api", $.param(payload), handle_register_success, "json")
 }
 
 function do_query_tel()
 {
     payload = {
-        query: $('#inputGroupTel').get(0).value
+        query_tel: $('#inputGroupTelQuery').get(0).value
     }
+
+    $('#forecast-query-btn').prop('disabled', true);
+    $('#query-spinner').removeClass('d-none');
 
     $.post("./api", $.param(payload), handle_query_tel_success, "json")
 }
 
 function do_query_count()
 {
-    payload = {
-        query: 0
-    }
-
-    $.post("./api", $.param(payload), handle_query_count_success, "json")
+    $.post("./api", "", handle_query_count_success, "json")
 }
 
 function main()
@@ -423,8 +495,10 @@ function main()
     $('#inputGroupCity').on('change', handle_city_selection_change);
     $('#inputGroupMountain').on('change', handle_mountain_selection_change);
     $('#inputGroupTel').on('change', handle_tel_change);
+    $('#inputGroupTelQuery').on('change', handle_tel_query_change);
 
     $('#forecast-register-btn').on('click', do_register);
+    $('#forecast-query-btn').on('click', do_query_tel);
 
     validate();
 }
