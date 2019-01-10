@@ -120,7 +120,7 @@ class MainPage(webapp2.RequestHandler):
         key_to_delete.delete()
 
         self.response.status = 200
-        self.response.write('{}')
+        self.response.write('{"cancel":"%s"}' % post_data['cancel'])
     
     def handle_query(self):
         post_data = self.request.POST

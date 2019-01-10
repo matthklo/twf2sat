@@ -410,7 +410,7 @@ function handle_query_tel_success(data, status, jqXHR)
             + '</td><td><button type="button" class="btn btn-outline-danger" data-revoke="'+ data.records[i].key + '">取消</button></td></tr>');
     }
     inner_html += ('<tbody>' + cells + '</tbody></table>');
-    $('#query-result-table').removeClass('d-none').html(inner_html).on('click', 'button[data-revoke]', handle_revoke);
+    $('#query-result-table').removeClass('d-none').html(inner_html).on('click', 'button[data-revoke]', do_revoke);
 }
 
 function handle_query_count_success(data, status, jqXHR)
@@ -418,10 +418,17 @@ function handle_query_count_success(data, status, jqXHR)
 
 }
 
-function handle_revoke(evt)
+function handle_revoke_success(data, status, jqXHR)
 {
-    var rkey = $(evt.target).data('revoke');
-    console.log("Revoke key = " + rkey);
+    var candidate_records = $('button[data-revoke]').get();
+    for (var idx in candidate_records)
+    {
+        if ($(candidate_records[idx]).data('revoke') == data.cancel)
+        {
+            $($(candidate_records[idx]).parents('tr').get(0)).remove();
+            return;
+        }
+    }
 }
 
 function show_result_modal(title, message)
@@ -462,6 +469,17 @@ function do_query_tel()
 function do_query_count()
 {
     $.post("./api", "", handle_query_count_success, "json")
+}
+
+function do_revoke(evt)
+{
+    $(evt.target).html('<div class="spinner-border spinner-border-sm" role="status"></div>取消').prop('disabled', true);
+
+    payload = {
+        cancel: $(evt.target).data('revoke')
+    }
+
+    $.post("./api", $.param(payload), handle_revoke_success, "json")
 }
 
 function main()
