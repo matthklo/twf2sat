@@ -328,7 +328,6 @@ function validate()
         $('#forecast-alert').removeClass('d-none');
 
         var site_id = $('#inputGroupMountain').get(0).value;
-        //console.log('site_id=' + site_id);
 
         // Adjust href & target attrs of #forecast-link
         $('#forecast-link').prop('href', 'https://www.cwb.gov.tw/V7/forecast/entertainment/other/'+ site_id + '.htm')
@@ -377,9 +376,6 @@ function handle_register_success(data, status, jqXHR)
         show_result_modal('成功', '已排程成功');
     }
 
-    console.log("data=" + data);
-    console.log("status=" + status);
-
     $('#forecast-register-btn').prop('disabled', false);
     $('#register-spinner').addClass('d-none');
 }
@@ -394,9 +390,6 @@ function handle_query_tel_success(data, status, jqXHR)
         show_result_modal('查詢失敗', '錯誤訊息: ' + data.error);
         return;
     }
-
-    console.log("count=" + data.count);
-    console.log("status=" + status);
 
     // List all records.
     var inner_html = '<thead><tr><th scope="col">啟始時間</th><th scope="col">結束時間</th><th scope="col">山岳</th><th scope="col">動作</th></tr></thead>';
@@ -512,8 +505,8 @@ function main()
     $('#inputGroupRegion').on('change', handle_region_selection_change);
     $('#inputGroupCity').on('change', handle_city_selection_change);
     $('#inputGroupMountain').on('change', handle_mountain_selection_change);
-    $('#inputGroupTel').on('change', handle_tel_change);
-    $('#inputGroupTelQuery').on('change', handle_tel_query_change);
+    $('#inputGroupTel').on('input', handle_tel_change);
+    $('#inputGroupTelQuery').on('input', handle_tel_query_change);
 
     $('#forecast-register-btn').on('click', do_register);
     $('#forecast-query-btn').on('click', do_query_tel);
