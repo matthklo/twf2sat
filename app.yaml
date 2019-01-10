@@ -7,6 +7,10 @@ handlers:
   static_files: index.html
   upload: index.html
 
+- url: /qrcode.png
+  static_files: qrcode.png
+  upload: qrcode.png
+
 - url: /api
   script: main.app
 
