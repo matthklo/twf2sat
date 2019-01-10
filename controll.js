@@ -374,6 +374,8 @@ function handle_register_success(data, status, jqXHR)
     else
     {
         show_result_modal('成功', '已排程成功');
+
+        localStorage.setItem("last_tel", $('#inputGroupTel').get(0).value);
     }
 
     $('#forecast-register-btn').prop('disabled', false);
@@ -390,6 +392,8 @@ function handle_query_tel_success(data, status, jqXHR)
         show_result_modal('查詢失敗', '錯誤訊息: ' + data.error);
         return;
     }
+
+    localStorage.setItem("last_query_tel", $('#inputGroupTelQuery').get(0).value);
 
     // List all records.
     var inner_html = '<thead><tr><th scope="col">啟始時間</th><th scope="col">結束時間</th><th scope="col">山岳</th><th scope="col">動作</th></tr></thead>';
@@ -510,6 +514,18 @@ function main()
 
     $('#forecast-register-btn').on('click', do_register);
     $('#forecast-query-btn').on('click', do_query_tel);
+
+    // Fill last used tel
+    var last_tel = localStorage.getItem("last_tel");
+    if (last_tel != null)
+    {
+        $('#inputGroupTel').get(0).value = last_tel;
+    }
+    var last_query_tel = localStorage.getItem("last_query_tel");
+    if (last_query_tel != null)
+    {
+        $('#inputGroupTelQuery').get(0).value = last_query_tel;
+    }
 
     validate();
 }
