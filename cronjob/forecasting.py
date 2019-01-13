@@ -104,7 +104,7 @@ if __name__ == '__main__':
     # has a 'end' also in the past (expired) in keys_to_delete.
     # For others, perform weather forwarding.
     for r in results:
-        if r['end'] < cur_epoch:
+        if r['end'] < cur_epoch + 86400:
             keys_to_delete.append(r.key)
         else:
             forecasts = fetch(r['site'])
