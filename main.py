@@ -84,9 +84,9 @@ class MainPage(webapp2.RequestHandler):
             return
          
         # 2. Check how many on-going forecasting rules matched with the given tel. Return error if there is too many.
-        ongoing_records = ForwardingRecord.query(ForwardingRecord.tel == post_data['tel']).fetch(3)
-        if len(ongoing_records) >= 3:
-            self.response.write('{"error":"Too many on-going forwarding records for a tel number. (max: 3)"}')
+        ongoing_records = ForwardingRecord.query(ForwardingRecord.tel == post_data['tel']).fetch(30)
+        if len(ongoing_records) >= 30:
+            self.response.write('{"error":"Too many on-going forwarding records for a tel number. (max: 30)"}')
             return
 
         # 3. Write to DB and return success.
@@ -142,7 +142,7 @@ class MainPage(webapp2.RequestHandler):
             return
         
         q = ForwardingRecord.query(ForwardingRecord.tel == post_data['query_tel']).order(ForwardingRecord.start)
-        result_entries = q.fetch(3)
+        result_entries = q.fetch(30)
 
         results = { 'count': len(result_entries), 'records': [] }
         for r in result_entries:
