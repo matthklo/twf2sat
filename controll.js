@@ -403,7 +403,7 @@ function handle_query_tel_success(data, status, jqXHR)
         var sd = new Date(data.records[i].start * 1000);
         var ed = new Date(data.records[i].end * 1000);
         cells += ('<tr><td>' + sd.toLocaleDateString() + '</td><td>' + ed.toLocaleDateString() 
-            + '</td><td>' + resolve_site_name(data.records[i].site) 
+            + '</td><td>' + data.records[i].sitename 
             + '</td><td><button type="button" class="btn btn-outline-danger" data-revoke="'+ data.records[i].key + '">取消</button></td></tr>');
     }
     inner_html += ('<tbody>' + cells + '</tbody></table>');
@@ -442,7 +442,8 @@ function do_register()
         tel: $('#inputGroupTel').get(0).value,
         site: $('#inputGroupMountain').get(0).value,
         start: $('#datetimepicker-start').datetimepicker('date').toDate().getTime() / 1000,
-        end: $('#datetimepicker-end').datetimepicker('date').toDate().getTime() / 1000
+        end: $('#datetimepicker-end').datetimepicker('date').toDate().getTime() / 1000,
+        sitename: resolve_site_name($('#inputGroupMountain').get(0).value)
     };
 
     $('#forecast-register-btn').prop('disabled', true);

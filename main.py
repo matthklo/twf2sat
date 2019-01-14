@@ -32,6 +32,7 @@ class ForwardingRecord(ndb.Model):
     start = ndb.IntegerProperty()
     end = ndb.IntegerProperty()
     site = ndb.StringProperty()
+    sitename = ndb.StringProperty()
     identify = ndb.StringProperty(indexed=False)
 
 class MainPage(webapp2.RequestHandler):
@@ -90,7 +91,8 @@ class MainPage(webapp2.RequestHandler):
             return
 
         # 3. Write to DB and return success.
-        new_record = ForwardingRecord(tel=post_data['tel'], start=int(post_data['start']), end=int(post_data['end']), site=post_data['site'], identify="")
+        new_record = ForwardingRecord(tel=post_data['tel'], start=int(post_data['start']), end=int(post_data['end']), 
+            site=post_data['site'], sitename=post_data['sitename'], identify="")
         k = new_record.put()
         logging.info('key for new_record: ' + str(k))
         self.response.write('{}')
@@ -151,6 +153,7 @@ class MainPage(webapp2.RequestHandler):
             rd['site'] = r.site
             rd['start'] = r.start
             rd['end'] = r.end
+            rd['sitename'] = r.sitename
             rd['key'] = r.key.urlsafe()
             results['records'].append(rd)
 
