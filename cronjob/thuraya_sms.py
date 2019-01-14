@@ -7,18 +7,19 @@ import httplib, urllib
 
 def send(number, sender, message):
     if (type(number) != str) and (type(number) != unicode):
-        raise TypeError
+	raise TypeError
     elif type(sender) != unicode:
-        raise TypeError
+	raise TypeError
     elif type(message) != unicode:
-        raise TypeError
-    
+	raise TypeError
+
     tlength = 160 - len(sender) - len(message) + 1
     params = urllib.urlencode({'msisdn':number.encode('utf-8'), 'from': sender.encode('utf-8'), 'message': message.encode('utf-8'), 'tlength': str(tlength)})
-    
+    #print(str(params))
+
     headers = {"Content-type": "application/x-www-form-urlencoded",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
+		"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
+		"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
     conn = httplib.HTTPSConnection("sms.thuraya.com")
     conn.request("POST", "/sms.php", params, headers)
     response = conn.getresponse()
