@@ -2,6 +2,7 @@ import webapp2
 import logging
 import json
 import datetime
+import time
 
 from google.appengine.ext import ndb
 
@@ -64,7 +65,8 @@ class MainPage(webapp2.RequestHandler):
             err_msg = 'Missing either \\"start\\" or \\"end\\" data.'
         if err_msg == None:
             cur_date = datetime.datetime.now()
-            cur_epoch = int((datetime.datetime(cur_date.year, cur_date.month, cur_date.day) - datetime.datetime(1970,1,1)).total_seconds())
+            # Note: Google AppEngine always use timezone UTC+0, so it's necessary to manually correct to align with the begining of day in UTC+8.
+            cur_epoch = int((datetime.datetime(cur_date.year, cur_date.month, cur_date.day) - datetime.datetime(1970,1,1)).total_seconds() - 28800)
             start_epoch = int(post_data['start'])
             end_epoch = int(post_data['end'])
             if start_epoch < cur_epoch:
