@@ -412,7 +412,7 @@ function handle_query_tel_success(data, status, jqXHR)
 
 function handle_query_count_success(data, status, jqXHR)
 {
-
+    $('#forwarding-count').html(data.count);
 }
 
 function handle_revoke_success(data, status, jqXHR)
@@ -529,6 +529,8 @@ function main()
     }
 
     validate();
+
+    do_query_count();
 }
 
 $(window).on('load', main);
