@@ -22,7 +22,7 @@ def has_numeric_member(o, f):
         return False
     try:
         v = int(o[f])
-        return o[f] == str(v)
+        return True
     except:
         pass
     return False
