@@ -21,10 +21,10 @@ def fetch(target):
     conn.request("GET", urlpath, "", headers)
     response = conn.getresponse()
     if str(response.status) != '200':
-    errmsg = ('Failed on fetching %s' % urlpath) + ' status code:' + str(response.status)
+        errmsg = ('Failed on fetching %s' % urlpath) + ' status code:' + str(response.status)
         print(errmsg, file=sys.stderr)
         logger.log_text(errmsg, severity='ERROR')
-    sys.exit(1)
+        sys.exit(1)
     body = response.read()
 
     forecasts = [ [{}, {}], [{}, {}], [{}, {}], [{}, {}] ]
@@ -32,7 +32,7 @@ def fetch(target):
     row_entries = re.findall(r'<tr.+?</tr>', body, re.DOTALL)
     if len(row_entries) != 12:
         errmsg = 'Unexpected content for %s' % urlpath + ' (number of row)'
-    print(errmsg, file=sys.stderr)
+        print(errmsg, file=sys.stderr)
         logger.log_text(errmsg, severity='WARNING')
 
     """
@@ -53,43 +53,41 @@ def fetch(target):
 
     entry_idx = 0
     for entry in re.finditer(r'<td colspan="2">.*</td>', row_entries[0]):
-    #print(str(entry.group(0)).decode('utf-8').encode('big5'))
-    weekday = re.sub(r'<.*?>', ' ', str(entry.group(0))).split()
-    #print(str(e).decode('utf-8').encode('big5'))
-    forecasts[entry_idx][0]['date'] = weekday[0]
-    forecasts[entry_idx][0]['weekday'] = weekday[1].decode('utf-8')
-    forecasts[entry_idx][1]['date'] = weekday[0]
-    forecasts[entry_idx][1]['weekday'] = weekday[1].decode('utf-8')
-    entry_idx += 1
-    if entry_idx >= len(forecasts):
-        break
+        weekday = re.sub(r'<.*?>', ' ', str(entry.group(0))).split()
+        forecasts[entry_idx][0]['date'] = weekday[0]
+        forecasts[entry_idx][0]['weekday'] = weekday[1].decode('utf-8')
+        forecasts[entry_idx][1]['date'] = weekday[0]
+        forecasts[entry_idx][1]['weekday'] = weekday[1].decode('utf-8')
+        entry_idx += 1
+        if entry_idx >= len(forecasts):
+            break
 
     entry_idx = 0
     for entry in re.finditer(r'<td>(.*)</td>', row_entries[3]):
-    idx = entry_idx//2
-    forecasts[idx][entry_idx%2]['high_temp'] = entry.group(1)
-    entry_idx += 1
-    if entry_idx >= (len(forecasts) * 2):
-        break
+        idx = entry_idx//2
+        forecasts[idx][entry_idx%2]['high_temp'] = entry.group(1)
+        entry_idx += 1
+        if entry_idx >= (len(forecasts) * 2):
+            break
 
     entry_idx = 0
     for entry in re.finditer(r'<td>(.*)</td>', row_entries[4]):
-    idx = entry_idx//2
-    forecasts[idx][entry_idx%2]['low_temp'] = entry.group(1)
-    entry_idx += 1
-    if entry_idx >= (len(forecasts) * 2):
-        break
+        idx = entry_idx//2
+        forecasts[idx][entry_idx%2]['low_temp'] = entry.group(1)
+        entry_idx += 1
+        if entry_idx >= (len(forecasts) * 2):
+            break
 
     entry_idx = 0
     for entry in re.finditer(r'<td>(.*)%</td>', row_entries[10]):
-    probtxt = 'n/a'
-    if entry.groups() != None:
-        probtxt = entry.group(1)
-    idx = entry_idx//2
-    forecasts[idx][entry_idx%2]['rain_prob'] = probtxt
-    entry_idx += 1
-    if entry_idx >= (len(forecasts) * 2):
-        break
+        probtxt = 'n/a'
+        if entry.groups() != None:
+            probtxt = entry.group(1)
+        idx = entry_idx//2
+        forecasts[idx][entry_idx%2]['rain_prob'] = probtxt
+        entry_idx += 1
+        if entry_idx >= (len(forecasts) * 2):
+            break
 
     return forecasts
 
@@ -113,41 +111,41 @@ if __name__ == '__main__':
     # has a 'end' also in the past (expired) in keys_to_delete.
     # For others, perform weather forwarding.
     for r in results:
-    if r['end'] + 86400 < cur_epoch:
+        if r['end'] + 86400 < cur_epoch:
             errmsg = 'Expiring rule for tel:' + str(r['tel']) + ', end:' + str(r['end']) + ', cur:' + str(cur_epoch)
             logger.log_text(errmsg, severity='INFO')
-        keys_to_delete.append(r.key)
-    else:
-        forecasts = fetch(r['site'])
+            keys_to_delete.append(r.key)
+        else:
+            forecasts = fetch(r['site'])
 
-        sitename = ''
-        if ('sitename' in r) and (r['sitename'] != None) and (len(r['sitename']) > 0):
-        sitename = r['sitename']
+            sitename = ''
+            if ('sitename' in r) and (r['sitename'] != None) and (len(r['sitename']) > 0):
+                sitename = r['sitename']
 
-        msg = u'%s %s(%s) 溫:%s-%s 雨:%s%%, %s(%s) 溫:%s-%s 雨:%s%%, %s(%s) 溫:%s-%s 雨:%s%%' % (
-        sitename,
-        forecasts[0][0]['date'],
-        forecasts[0][0]['weekday'][(len(forecasts[0][0]['weekday'])-1):],
-        forecasts[0][0]['high_temp'],
-        forecasts[0][0]['low_temp'],
-        forecasts[0][0]['rain_prob'],
-        forecasts[1][0]['date'],
-        forecasts[1][0]['weekday'][(len(forecasts[1][0]['weekday'])-1):],
-        forecasts[1][0]['high_temp'],
-        forecasts[1][0]['low_temp'],
-        forecasts[1][0]['rain_prob'],
-        forecasts[2][0]['date'],
-        forecasts[2][0]['weekday'][(len(forecasts[2][0]['weekday'])-1):],
-        forecasts[2][0]['high_temp'],
-        forecasts[2][0]['low_temp'],
-        forecasts[2][0]['rain_prob'])
+            msg = u'%s %s(%s) 溫:%s-%s 雨:%s%%, %s(%s) 溫:%s-%s 雨:%s%%, %s(%s) 溫:%s-%s 雨:%s%%' % (
+                sitename,
+                forecasts[0][0]['date'],
+                forecasts[0][0]['weekday'][(len(forecasts[0][0]['weekday'])-1):],
+                forecasts[0][0]['high_temp'],
+                forecasts[0][0]['low_temp'],
+                forecasts[0][0]['rain_prob'],
+                forecasts[1][0]['date'],
+                forecasts[1][0]['weekday'][(len(forecasts[1][0]['weekday'])-1):],
+                forecasts[1][0]['high_temp'],
+                forecasts[1][0]['low_temp'],
+                forecasts[1][0]['rain_prob'],
+                forecasts[2][0]['date'],
+                forecasts[2][0]['weekday'][(len(forecasts[2][0]['weekday'])-1):],
+                forecasts[2][0]['high_temp'],
+                forecasts[2][0]['low_temp'],
+                forecasts[2][0]['rain_prob'])
 
             errmsg = 'Forward msg to tel:' + str(r['tel']) + ', text:"' + msg + '"'
             logger.log_text(errmsg, severity="DEBUG")
 
-        thuraya_sms.send(r['tel'], u'機器人阿邦', msg, logger)
+            thuraya_sms.send(r['tel'], u'機器人阿邦', msg, logger)
 
-        cnt+=1
+            cnt+=1
 
     errmsg = 'send out %d messages. delete %d records. ' % (cnt, len(keys_to_delete))
     logger.log_text(errmsg, severity='INFO')
