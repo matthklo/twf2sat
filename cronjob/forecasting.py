@@ -122,7 +122,7 @@ if __name__ == '__main__':
             if ('sitename' in r) and (r['sitename'] != None) and (len(r['sitename']) > 0):
                 sitename = r['sitename']
 
-            msg = u'%s %s(%s) 溫:%s-%s 雨:%s%%, %s(%s) 溫:%s-%s 雨:%s%%, %s(%s) 溫:%s-%s 雨:%s%%' % (
+            msg = u'%s %s(%s) 溫:%s~%s 雨:%s%%, %s(%s) 溫:%s~%s 雨:%s%%, %s(%s) 溫:%s~%s 雨:%s%%' % (
                 sitename,
                 forecasts[0][0]['date'],
                 forecasts[0][0]['weekday'][(len(forecasts[0][0]['weekday'])-1):],
