@@ -7,90 +7,85 @@ from google.cloud import datastore
 from google.cloud import logging
 
 import httplib, urllib
+import subprocess
 import sys
 import re
 import time
+import tempfile
 import thuraya_sms
 
 def fetch(target):
-    urlpath = '/V7/forecast/entertainment/7Day/%s.htm' % target
+    urlpath = 'https://www.cwb.gov.tw/V8/C/L/Mountain/Mountain.html?QS=&PID=%s' % target
 
-    headers = { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"}
-    conn = httplib.HTTPSConnection("www.cwb.gov.tw")
-    conn.request("GET", urlpath, "", headers)
-    response = conn.getresponse()
-    if str(response.status) != '200':
-        errmsg = ('Failed on fetching %s' % urlpath) + ' status code:' + str(response.status)
-        print(errmsg, file=sys.stderr)
-        logger.log_text(errmsg, severity='ERROR')
-        sys.exit(1)
-    body = response.read()
+    with tempfile.TemporaryFile() as tmpout, tempfile.TemporaryFile() as tmpf:
+        # On Ubuntu, install chromium-browser with command: 'apt install chromium-browser'
+        chromium_path = '/usr/bin/chromium-browser'
 
-    forecasts = [ [{}, {}], [{}, {}], [{}, {}], [{}, {}] ]
+        # Generate full web content with the help of headless Chromium browser
+        subprocess.check_call([chromium_path, '--no-sandbox', '--no-default-browser-check', '--no-first-run',
+            '--disable-default-apps', '--disable-popup-blocking', '--disable-translate',
+            '--disable-background-timer-throttling', '--headless', '--disable-gpu', '--dump-dom',
+            urlpath], stdout=tmpout)
+        tmpout.seek(0)
 
-    row_entries = re.findall(r'<tr.+?</tr>', body, re.DOTALL)
-    if len(row_entries) != 12:
-        errmsg = 'Unexpected content for %s' % urlpath + ' (number of row)'
-        print(errmsg, file=sys.stderr)
-        logger.log_text(errmsg, severity='WARNING')
+        # Trim all lines except those within 'Mobile 3hr'
+        copy = False
+        for line in tmpout:
+            if 'Mobile 3hr' in line:
+                copy = not copy
+            if copy == True:
+                tmpf.write(line)
+        tmpf.seek(0)
 
-    """
-    row_entries index:
-     0: Weekdays
-     1: Day/Night
-     2: Weather Icons
-     3: High Temp
-     4: Low Temp
-     5: Wind
-     6: Wind dir
-     7: Humidity
-     8: High Body Temp
-     9: Low Body Temp
-    10: Rain prob.
-    11: Ultraviolet light
-    """
+        # Note: the '?' after the '+' make it matches in non-greedy mode.
+        row_entries = re.findall(r'panel-title.+?</h4>', tmpf.read(), re.DOTALL)
 
-    entry_idx = 0
-    for entry in re.finditer(r'<td colspan="2">.*</td>', row_entries[0]):
-        weekday = re.sub(r'<.*?>', ' ', str(entry.group(0))).split()
-        forecasts[entry_idx][0]['date'] = weekday[0]
-        forecasts[entry_idx][0]['weekday'] = weekday[1].decode('utf-8')
-        forecasts[entry_idx][1]['date'] = weekday[0]
-        forecasts[entry_idx][1]['weekday'] = weekday[1].decode('utf-8')
-        entry_idx += 1
-        if entry_idx >= len(forecasts):
-            break
+    forecasts_3hr = []
+    for raw_entry in row_entries:
+        fc = {}
+        m1 = re.search(r'([0-9]{2}/[0-9]{2})\(([^)]+)\)([0-9]{2}:[0-9]{2})', raw_entry)
+        fc['date'] = m1.group(1)
+        fc['weekday'] = m1.group(2).decode('utf-8')
+        fc['time'] = m1.group(3)
 
-    entry_idx = 0
-    for entry in re.finditer(r'<td>(.*)</td>', row_entries[3]):
-        idx = entry_idx//2
-        forecasts[idx][entry_idx%2]['high_temp'] = entry.group(1)
-        entry_idx += 1
-        if entry_idx >= (len(forecasts) * 2):
-            break
+        m2 = re.search(r'tem-C is-active">([^<]+)<', raw_entry)
+        fc['temp'] = m2.group(1)
 
-    entry_idx = 0
-    for entry in re.finditer(r'<td>(.*)</td>', row_entries[4]):
-        idx = entry_idx//2
-        forecasts[idx][entry_idx%2]['low_temp'] = entry.group(1)
-        entry_idx += 1
-        if entry_idx >= (len(forecasts) * 2):
-            break
+        m3 = re.search(r'icon-umbrella" aria-hidden="true"></i><span>([^<]+)</span>', raw_entry)
+        fc['rain_prob'] = m3.group(1) # Note: it includes '%'
 
-    entry_idx = 0
-    for entry in re.finditer(r'<td>(.*)%</td>', row_entries[10]):
-        probtxt = 'n/a'
-        if entry.groups() != None:
-            probtxt = entry.group(1)
-        idx = entry_idx//2
-        forecasts[idx][entry_idx%2]['rain_prob'] = probtxt
-        entry_idx += 1
-        if entry_idx >= (len(forecasts) * 2):
-            break
+        forecasts_3hr.append(fc)
+        #print(str(fc))
+
+    # Summary of 3hr forecast to be per day.
+    # For tempratures: Record 'high_temp' and 'low_temp' from 3hr forecasts.
+    # For rain probability: Record the maximum one from 3hr forecasts.
+    forecasts = []
+    dfc = None
+    for fc in forecasts_3hr:
+        if (dfc == None) or (dfc['date'] != fc['date']):
+            if dfc != None:
+                #print(str(dfc))
+                forecasts.append(dfc)
+            dfc = {}
+            dfc['date'] = fc['date']
+            dfc['weekday'] = fc['weekday']
+            dfc['high_temp'] = fc['temp']
+            dfc['low_temp'] = fc['temp']
+            dfc['rain_prob'] = fc['rain_prob']
+        else:
+            #Update 'high_temp', 'low_temp', and 'rain_prob'
+            if int(dfc['high_temp']) < int(fc['temp']):
+                dfc['high_temp'] = fc['temp']
+            if int(dfc['low_temp']) > int(fc['temp']):
+                dfc['low_temp'] = fc['temp']
+            if int(dfc['rain_prob'].strip('%')) < int(fc['rain_prob'].strip('%')):
+                dfc['rain_prob'] = fc['rain_prob']
+    if dfc != None:
+        #print(str(dfc))
+        forecasts.append(dfc)
 
     return forecasts
-
 
 if __name__ == '__main__':
     client = datastore.Client()
@@ -122,23 +117,18 @@ if __name__ == '__main__':
             if ('sitename' in r) and (r['sitename'] != None) and (len(r['sitename']) > 0):
                 sitename = r['sitename']
 
-            msg = u'%s %s(%s) 溫:%s~%s 雨:%s%%, %s(%s) 溫:%s~%s 雨:%s%%, %s(%s) 溫:%s~%s 雨:%s%%' % (
+            msg = u'%s %s(%s) 溫:%s~%s 雨:%s, %s(%s) 溫:%s~%s 雨:%s' % (
                 sitename,
-                forecasts[0][0]['date'],
-                forecasts[0][0]['weekday'][(len(forecasts[0][0]['weekday'])-1):],
-                forecasts[0][0]['high_temp'],
-                forecasts[0][0]['low_temp'],
-                forecasts[0][0]['rain_prob'],
-                forecasts[1][0]['date'],
-                forecasts[1][0]['weekday'][(len(forecasts[1][0]['weekday'])-1):],
-                forecasts[1][0]['high_temp'],
-                forecasts[1][0]['low_temp'],
-                forecasts[1][0]['rain_prob'],
-                forecasts[2][0]['date'],
-                forecasts[2][0]['weekday'][(len(forecasts[2][0]['weekday'])-1):],
-                forecasts[2][0]['high_temp'],
-                forecasts[2][0]['low_temp'],
-                forecasts[2][0]['rain_prob'])
+                forecasts[1]['date'],
+                forecasts[1]['weekday'],
+                forecasts[1]['high_temp'],
+                forecasts[1]['low_temp'],
+                forecasts[1]['rain_prob'],
+                forecasts[2]['date'],
+                forecasts[2]['weekday'],
+                forecasts[2]['high_temp'],
+                forecasts[2]['low_temp'],
+                forecasts[2]['rain_prob'])
 
             errmsg = 'Forward msg to tel:' + str(r['tel']) + ', text:"' + msg + '"'
             logger.log_text(errmsg, severity="DEBUG")
