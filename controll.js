@@ -330,7 +330,7 @@ function validate()
         var site_id = $('#inputGroupMountain').get(0).value;
 
         // Adjust href & target attrs of #forecast-link
-        $('#forecast-link').prop('href', 'https://www.cwb.gov.tw/V7/forecast/entertainment/other/'+ site_id + '.htm')
+        $('#forecast-link').prop('href', 'https://www.cwb.gov.tw/V8/C/L/Mountain/Mountain.html?QS=&PID='+ site_id)
             .prop('target', site_id);
 
     }
