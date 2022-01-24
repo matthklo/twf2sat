@@ -16,7 +16,8 @@ import thuraya_sms
 
 def fetch(target):
     urlpath = 'https://www.cwb.gov.tw/V8/C/L/Mountain/Mountain.html?QS=&PID=%s' % target
-
+    
+    forecasts = []
     with tempfile.TemporaryFile() as tmpout, tempfile.TemporaryFile() as tmpf:
         # On Ubuntu, install chromium-browser with command: 'apt install chromium-browser'
         chromium_path = '/usr/bin/chromium-browser'
@@ -31,59 +32,48 @@ def fetch(target):
         # Trim all lines except those within 'Mobile 3hr'
         copy = False
         for line in tmpout:
-            if 'Mobile 3hr' in line:
+            if 'id="TableId3hr"' in line:
                 copy = not copy
             if copy == True:
                 tmpf.write(line)
         tmpf.seek(0)
 
-        # Note: the '?' after the '+' make it matches in non-greedy mode.
-        row_entries = re.findall(r'panel-title.+?</h4>', tmpf.read(), re.DOTALL)
+        raw_content = tmpf.read()
 
-    forecasts_3hr = []
-    for raw_entry in row_entries:
-        fc = {}
-        m1 = re.search(r'([0-9]{2}/[0-9]{2})\(([^)]+)\)([0-9]{2}:[0-9]{2})', raw_entry)
-        fc['date'] = m1.group(1)
-        fc['weekday'] = m1.group(2).decode('utf-8')
-        fc['time'] = m1.group(3)
+        dfc1 = {}
+        mo = re.search(r'<th id="PC3_D2"[^>]+>([^<]+)<br>([^<]+)</th>', raw_content)
+        dfc1['date'] = mo.group(1)
+        dfc1['weekday'] = mo.group(2).decode('utf-8')
 
-        m2 = re.search(r'tem-C is-active">([^<]+)<', raw_entry)
-        fc['temp'] = m2.group(1)
+        mo = re.search(r'<td headers="PC3_T PC3_D2 PC3_D2H12">[^>]+>([^<]+)<', raw_content)
+        dfc1['high_temp'] = mo.group(1)
 
-        m3 = re.search(r'icon-umbrella" aria-hidden="true"></i><span>([^<]+)</span>', raw_entry)
-        fc['rain_prob'] = m3.group(1) # Note: it includes '%'
+        mo = re.search(r'<td headers="PC3_T PC3_D2 PC3_D2H06">[^>]+>([^<]+)<', raw_content)
+        dfc1['low_temp'] = mo.group(1)
 
-        forecasts_3hr.append(fc)
-        #print(str(fc))
+        mo = re.search(r'<td colspan="2" headers="PC3_Po PC3_D2 PC3_D2H12[^>]+>([0-9,-]+)', raw_content)
+        dfc1['rain_prob'] = mo.group(1)
 
-    # Summary of 3hr forecast to be per day.
-    # For tempratures: Record 'high_temp' and 'low_temp' from 3hr forecasts.
-    # For rain probability: Record the maximum one from 3hr forecasts.
-    forecasts = []
-    dfc = None
-    for fc in forecasts_3hr:
-        if (dfc == None) or (dfc['date'] != fc['date']):
-            if dfc != None:
-                #print(str(dfc))
-                forecasts.append(dfc)
-            dfc = {}
-            dfc['date'] = fc['date']
-            dfc['weekday'] = fc['weekday']
-            dfc['high_temp'] = fc['temp']
-            dfc['low_temp'] = fc['temp']
-            dfc['rain_prob'] = fc['rain_prob']
-        else:
-            #Update 'high_temp', 'low_temp', and 'rain_prob'
-            if int(dfc['high_temp']) < int(fc['temp']):
-                dfc['high_temp'] = fc['temp']
-            if int(dfc['low_temp']) > int(fc['temp']):
-                dfc['low_temp'] = fc['temp']
-            if int(dfc['rain_prob'].strip('%')) < int(fc['rain_prob'].strip('%')):
-                dfc['rain_prob'] = fc['rain_prob']
-    if dfc != None:
-        #print(str(dfc))
-        forecasts.append(dfc)
+        #print(str(dfc1))
+        forecasts.append(dfc1)
+
+        dfc2 = {}
+        mo = re.search(r'<th id="PC3_D3"[^>]+>([^<]+)<br>([^<]+)</th>', raw_content)
+        dfc2['date'] = mo.group(1)
+        dfc2['weekday'] = mo.group(2).decode('utf-8')
+
+        mo = re.search(r'<td headers="PC3_T PC3_D3 PC3_D3H12">[^>]+>([^<]+)<', raw_content)
+        dfc2['high_temp'] = mo.group(1)
+
+        mo = re.search(r'<td headers="PC3_T PC3_D3 PC3_D3H06">[^>]+>([^<]+)<', raw_content)
+        dfc2['low_temp'] = mo.group(1)
+
+        mo = re.search(r'<td colspan="2" headers="PC3_Po PC3_D3 PC3_D3H12[^>]+>([0-9,-]+)', raw_content)
+        dfc2['rain_prob'] = mo.group(1)
+
+        #print(str(dfc2))
+        forecasts.append(dfc2)
+
 
     return forecasts
 
@@ -119,18 +109,19 @@ if __name__ == '__main__':
 
             msg = u'%s %s(%s) 溫:%s~%s 雨:%s, %s(%s) 溫:%s~%s 雨:%s' % (
                 sitename,
+                forecasts[0]['date'],
+                forecasts[0]['weekday'],
+                forecasts[0]['high_temp'],
+                forecasts[0]['low_temp'],
+                forecasts[0]['rain_prob'],
                 forecasts[1]['date'],
                 forecasts[1]['weekday'],
                 forecasts[1]['high_temp'],
                 forecasts[1]['low_temp'],
-                forecasts[1]['rain_prob'],
-                forecasts[2]['date'],
-                forecasts[2]['weekday'],
-                forecasts[2]['high_temp'],
-                forecasts[2]['low_temp'],
-                forecasts[2]['rain_prob'])
+                forecasts[1]['rain_prob'])
 
             errmsg = 'Forward msg to tel:' + str(r['tel']) + ', text:"' + msg + '"'
+
             logger.log_text(errmsg, severity="DEBUG")
 
             thuraya_sms.send(r['tel'], u'機器人阿邦', msg, logger)
